@@ -133,7 +133,7 @@
                 <span class="badge badge-warning">On Trial Period</span>
                 <span v-if="subscription.trial_end"> You are on trial period until {{ subscription.trial_end * 1000 | datetime }}.</span>
               </div>
-              <b-btn class="mt-2" variant="danger" size="sm" @click="cancel">
+              <b-btn v-if="stripeValid" class="mt-2" variant="danger" size="sm" @click="cancel">
                 <i class="fa fa-times"></i> Cancel Subscription
               </b-btn>
             </div>
