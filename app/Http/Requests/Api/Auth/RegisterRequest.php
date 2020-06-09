@@ -3,6 +3,9 @@
 namespace App\Http\Requests\Api\Auth;
 
 use App\Http\Requests\FormRequest;
+use App\Rules\StripeCouponCodeRule;
+use App\User;
+use Illuminate\Validation\Rule;
 
 class RegisterRequest extends FormRequest
 {
@@ -24,6 +27,22 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         $rules = [
+            'account_type' => [
+                'required',
+                Rule::in([User::ACCOUNT_TYPE_INDIVIDUAL, User::ACCOUNT_TYPE_COMPANY]),
+            ],
+            'company_id' => [
+                'nullable',
+                'required_if:account_type,==,' . User::ACCOUNT_TYPE_COMPANY,
+                'exists:companies,id',
+            ],
+            'company_name' => [
+                'nullable',
+                'required_if:account_type,==,' . User::ACCOUNT_TYPE_COMPANY,
+                'exists:companies,name',
+                'string',
+                'max:40',
+            ],
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'password_confirmation' => 'required|string',
@@ -40,8 +59,21 @@ class RegisterRequest extends FormRequest
             'state' => 'required|string|max:3',
             'postal_code' => 'required|string|max:20',
             'country_id' => 'nullable|exists:countries,id',
-            'is_free_account' => 'required|number'
+            'is_free_account' => 'required'
         ];
+
+        if ($this->get("is_free_account") != 1) {
+            $rules = array_merge($rules, [
+                'card_token' => 'required|string|max:255',
+                'country_id' => 'nullable|exists:countries,id',
+                'plan_interval' => 'required|string|in:monthly,yearly',
+                'coupon_code' => [
+                    'nullable',
+                    'string',
+                    new StripeCouponCodeRule(),
+                ]
+            ]);
+        }
         return $rules;
     }
 }

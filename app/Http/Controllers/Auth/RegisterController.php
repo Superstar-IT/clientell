@@ -15,6 +15,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Laravel\Passport\ApiTokenCookieFactory;
 use Carbon\Carbon;
+use phpDocumentor\Reflection\Types\Null_;
+use URL;
 
 class RegisterController extends Controller
 {
@@ -80,6 +82,10 @@ class RegisterController extends Controller
      */
     protected function create(RegisterRequest $request)
     {
+        if ($request->get('is_free_account') != 1) {
+            $payment_method = 'stripe';
+        } else
+            $payment_method = null;
         beginTransaction();
         try {
             /**
@@ -107,7 +113,8 @@ class RegisterController extends Controller
                     [
                         'role_id' => Role::ROLE_USER,
                         'name' => $request->getFullName(),
-                        'password' => bcrypt($request->get('password'))
+                        'password' => bcrypt($request->get('password')),
+                        'payment_method' => $payment_method
                         // 'is_free_account' => config('settings.free_account_on_register_enabled'),
                     ]
                 ));
@@ -119,6 +126,7 @@ class RegisterController extends Controller
                     ->trialUntil(Carbon::now()->addDays(3))        // 72 trial hours
                     ->create($request->get('card_token'));
             }
+
             commit();
             return $user;
         } catch (Exception $exception) {
