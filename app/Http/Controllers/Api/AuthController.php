@@ -240,16 +240,20 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request)
     {
+        if ($request->get('is_free_account') != 1) {
+            $payment_method = 'playstore';
+        } else
+            $payment_method = null;
+
         beginTransaction();
         try {
-            User::query()
+            $user = User::query()
                 ->create(array_merge($request->only([
                     'account_type',
                     'email',
                     'first_name',
                     'middle_name',
                     'last_name',
-                    'type',
                     'street_address',
                     'street_address2',
                     'city',
@@ -266,8 +270,18 @@ class AuthController extends Controller
                         'role_id' => Role::ROLE_USER,
                         'name' => $request->getFullName(),
                         'password' => bcrypt($request->get('password')),
+                        'payment_method' => $payment_method
+                        // 'is_free_account' => config('settings.free_account_on_register_enabled'),
                     ]
                 ));
+            //if (!config('settings.free_account_on_register_enabled')) {
+            // if ($request->get('is_free_account') != 1) {
+            //     $plan_interval = $request->get('plan_interval') === 'monthly' ? config('services.stripe.plan.id') : config('services.stripe.yearly_plan.id');
+            //     $user->newSubscription(Plan::SUBSCRIPTION_MAIN, $plan_interval)
+            //         ->withCoupon($request->get('coupon_code'))
+            //         ->trialUntil($request->get('trial_end_date'))  
+            //         ->create($request->get('card_token'));
+            // }
 
             commit();
 
