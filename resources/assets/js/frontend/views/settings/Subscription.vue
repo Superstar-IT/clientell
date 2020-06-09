@@ -133,7 +133,7 @@
                 <span class="badge badge-warning">On Trial Period</span>
                 <span v-if="subscription.trial_end"> You are on trial period until {{ subscription.trial_end * 1000 | datetime }}.</span>
               </div>
-              <b-btn v-if="stripeValid" class="mt-2" variant="danger" size="sm" @click="cancel">
+              <b-btn class="mt-2" variant="danger" size="sm" @click="cancel">
                 <i class="fa fa-times"></i> Cancel Subscription
               </b-btn>
             </div>
@@ -217,7 +217,23 @@ export default {
         complete: false,
         options: {}
       },
-      form: new window.Form()
+      redirectUrl: "/setting/account?after_signup=1",
+      form: new window.Form({
+        first_name:"",
+        middle_name:"",
+        last_name:"",
+        street_address:"",
+        street_address2:"",
+        city:"",
+        state:"",
+        postal_code:"",
+        phone_number:"",
+        phone_number_ext:"",
+        alt_phone_number:"",
+        alt_phone_number_ext:"",
+        is_free_account: 0,
+        payment_method: "stripe"
+      })
     };
   },
   computed: {
@@ -330,6 +346,62 @@ export default {
     },
     cardChange(e) {
       this.card.complete = e.complete;
+    },
+    register() {
+      let self = this;
+      this.form.first_name = this.user.first_name;
+      this.form.middle_name = this.user.middle_name;
+      this.form.last_name = this.user.last_name;
+      this.form.street_address = this.user.street_address;
+      this.form.street_address2 = this.user.street_address2;
+      this.form.city = this.user.city;
+      this.form.state = this.user.state;
+      this.form.postal_code = this.user.postal_code;
+      this.form.phone_number = this.user.phone_number;
+      this.form.phone_number_ext = this.user.phone_number_ext;
+      this.form.alt_phone_number = this.user.alt_phone_number;
+      this.form.alt_phone_number_ext = this.user.alt_phone_number_ext;
+
+    console.log(this.form);
+      this.form.startProcessing();
+      if (this.config.app.env === "testing") {
+        window.App.post(
+          this.user ? "/register/finish" : "/register",
+          this.form
+        ).then(() => {});
+      } else {
+        let proceed = () => {
+          window.App.post(
+            this.user ? "/register/finish" : "/register",
+            this.form
+          ).then(() => {
+            this.form.startProcessing();
+            if (this.shouldReportAnalytics) {
+              if (typeof fbq("track", "CompleteRegistration") === "undefined") {
+                window.location = this.redirectUrl;
+              } else {
+                window.location = this.redirectUrl;
+              }
+            } else {
+              window.location = this.redirectUrl;
+            }
+          });
+        };
+        // if (this.config.settings.free_account_on_register_enabled) {
+        if (this.form.is_free_account) {
+          proceed();
+        } else {
+          createToken()
+            .then(response => {
+              this.form.card_token = response.token.id;
+              proceed();
+            })
+            .catch(() => {
+              this.form.finishProcessing(false);
+              this.form.errors.add("card_token", "Invalid card details.");
+            });
+        }
+      }
     },
   }
 };
