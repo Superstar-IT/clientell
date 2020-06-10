@@ -53,10 +53,10 @@
               breakpoint="md"
               label="Credit Card"
               label-class="text-md-right"
-              label-for="credit_card"
+              label-for="credit_card_input"
             >
               <card
-                id="credit_card"
+                id="credit_card_input"
                 class="stripe-card"
                 :class="{ complete: card.complete }"
                 :stripe="stripeKey"
@@ -273,11 +273,9 @@ export default {
       window.axios
         .get("/api/v1/auth/user?include=stripe_subscription")
         .then(response => {
-          console.log(response)
           this.subscription = response.data.stripe_subscription;
           if(response.data.payment_method == 'stripe')
             this.stripeValid = true;
-          console.log(this.user.is_on_trial);
           if(this.user.is_free_account)
             this.updatePayment = false;
         });
@@ -411,5 +409,30 @@ export default {
 .form-update-password,
 .form-import-csv {
   max-width: 600px;
+}
+</style>
+<style>
+ .StripeElement {
+  background-color: white;
+  height: 40px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  /*border: 1px solid transparent;*/
+  border: 1px solid #869fac;
+  /*box-shadow: 0 1px 3px 0 #e6ebf1;*/
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
 }
 </style>

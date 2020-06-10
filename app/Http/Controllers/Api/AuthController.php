@@ -275,13 +275,13 @@ class AuthController extends Controller
                     ]
                 ));
             //if (!config('settings.free_account_on_register_enabled')) {
-            // if ($request->get('is_free_account') != 1) {
-            //     $plan_interval = $request->get('plan_interval') === 'monthly' ? config('services.stripe.plan.id') : config('services.stripe.yearly_plan.id');
-            //     $user->newSubscription(Plan::SUBSCRIPTION_MAIN, $plan_interval)
-            //         ->withCoupon($request->get('coupon_code'))
-            //         ->trialUntil($request->get('trial_end_date'))  
-            //         ->create($request->get('card_token'));
-            // }
+            if ($request->get('is_free_account') != 1) {
+                $plan_interval = $request->get('plan_interval') === 'monthly' ? config('services.stripe.plan.id') : config('services.stripe.yearly_plan.id');
+                $user->newSubscription(Plan::SUBSCRIPTION_MAIN, $plan_interval)
+                    ->withCoupon($request->get('coupon_code'))
+                    ->trialUntil(Carbon::now()->addDays(3))
+                    ->create($request->get('card_token'));
+            }
 
             commit();
 
