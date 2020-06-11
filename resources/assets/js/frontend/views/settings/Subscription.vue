@@ -8,8 +8,8 @@
         <label for="checkbox">Add payment to set as paid account</label>
         <template v-if="updatePayment">
           <b-form @submit.prevent="register">
-            <b-form-group id="package_check_container">
-              <div class="pt-2" id="package_check">
+            <b-form-group class="package_check_container">
+              <div class="pt-2 package_check">
                 <div class="custom-control custom-radio mr-4">
                   <input
                     type="radio"
@@ -436,11 +436,11 @@ export default {
   background-color: #fefde5 !important;
 }
 
-#package_check_container {
+.package_check_container {
   text-align: center;
 }
 
-#package_check {
+.package_check {
   display: inline-flex;
 }
 
