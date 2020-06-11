@@ -67,6 +67,7 @@
     import ImportQuickbooks from './settings/ImportQuickbooks';
     import DownloadApp from  './settings/DownloadApp';
     import SubscribeNow from './settings/trial/SubscribeNow'
+    import * as PackageType from "./../../constants/user-account-package-type";
 
     export default {
         components: {

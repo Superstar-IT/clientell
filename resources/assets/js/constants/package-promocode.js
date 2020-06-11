@@ -1,0 +1,1 @@
+export const PACKAGE_TYPE_1 = 'SP5niSxX', PACKAGE_TYPE_2 = 'UBLRYeO4';

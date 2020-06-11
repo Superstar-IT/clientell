@@ -3,11 +3,41 @@
     <b-card>
       <h4 slot="header" class="text-center">Subscription</h4>
       <template v-if="user.is_free_account">
-        <p>Free Forever!</p>
+        <p>Your account is free, you can switch to paid account.</p>
         <input type="checkbox" id="checkbox" v-model="updatePayment">
-        <label for="checkbox">Add Payment</label>
+        <label for="checkbox">Add payment to set as paid account</label>
         <template v-if="updatePayment">
           <b-form @submit.prevent="register">
+            <b-form-group id="package_check_container">
+              <div class="pt-2" id="package_check">
+                <div class="custom-control custom-radio mr-4">
+                  <input
+                    type="radio"
+                    id="radio-package-1"
+                    v-model="form.coupon_code"
+                    class="custom-control-input"
+                    :value=PromoCode.PACKAGE_TYPE_1                  
+                  />
+                  <label
+                    class="custom-control-label"
+                    for="radio-package-1"
+                  >{{PackageType.PACKAGE_TYPE_1}}</label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input
+                    type="radio"
+                    id="radio-package-2"
+                    v-model="form.coupon_code"
+                    class="custom-control-input"
+                    :value=PromoCode.PACKAGE_TYPE_2                    
+                  />
+                  <label
+                    class="custom-control-label"
+                    for="radio-package-2"
+                  >{{PackageType.PACKAGE_TYPE_2}}</label>
+                </div>
+              </div>
+            </b-form-group>
             <b-form-group
               horizontal
               class="mt-4"
@@ -69,40 +99,6 @@
                 v-text="form.errors.get('card_token')"
               ></div>
             </b-form-group>
-
-            <b-form-group
-              horizontal
-              class="mb-1"
-              label-cols="4"
-              breakpoint="md"
-              label="Promo Code"
-              label-class="text-md-right"
-              label-for="coupon_code"
-              :invalid-feedback="form.errors.get('coupon_code')"
-            >
-              <template v-if="!coupon">
-                <b-form-input
-                  id="coupon_code"
-                  v-model="form.coupon_code"
-                  :state="form.errors.state('coupon_code')"
-                ></b-form-input>
-              </template>
-              <div class="alert alert-success" v-else>
-                <i class="fa fa-check-circle"></i>
-                {{ coupon.name }}
-              </div>
-            </b-form-group>
-            <b-form-group
-              horizontal
-              label-cols="4"
-              breakpoint="md"
-              label-class="text-md-right"
-              v-if="!coupon"
-            >
-              <a href="#" @click.prevent="checkCoupon">
-                <i class="fa fa-spinner fa-spin" v-if="checkingCoupon"></i> Click here to see if the promo code is valid
-              </a>
-            </b-form-group> 
             <div class="form-group row mb-0 mt-5">
               <b-btn type="submit" variant="primary" :disabled="form.busy" style="margin: 0 auto">
                 <!--<i v-if="form.busy"
@@ -183,6 +179,8 @@ import ImportQuickbooks from "./ImportQuickbooks";
 import DownloadApp from "./DownloadApp";
 import SubscribeNow from "./trial/SubscribeNow";
 import { Card, createToken } from "vue-stripe-elements-plus";
+import * as PackageType from "../../../constants/user-account-package-type";
+import * as PromoCode from "../../../constants/package-promocode";
 
 export default {
   components: {
@@ -207,6 +205,8 @@ export default {
     return {
       subscription: null,
       cancelling: false,
+      PackageType,
+      PromoCode,
       resuming: false,
       stripeValid: false,
       updatePayment: false,
@@ -232,7 +232,7 @@ export default {
         alt_phone_number:"",
         alt_phone_number_ext:"",
         is_free_account: 0,
-        payment_method: "stripe"
+        payment_method: "stripe",
       })
     };
   },
@@ -435,4 +435,13 @@ export default {
 .StripeElement--webkit-autofill {
   background-color: #fefde5 !important;
 }
+
+#package_check_container {
+  text-align: center;
+}
+
+#package_check {
+  display: inline-flex;
+}
+
 </style>
