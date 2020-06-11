@@ -40,6 +40,18 @@ class LienController extends Controller
             $county = escape_like($county);
             $query->where('county', 'like', "%$county%");
         }
+        if ($tax = $request->get('tax')) {
+            $tax = escape_like($tax);
+            $query->where('tax', 'like', "%$tax%");
+        }
+        if ($judge = $request->get('judge')) {
+            $judge = escape_like($judge);
+            $query->where('judge', 'like', "%$judge%");
+        }
+        if ($mechanic = $request->get('mechanic')) {
+            $mechanic = escape_like($mechanic);
+            $query->where('mechanic', 'like', "%$mechanic%");
+        }
         if ($state = $request->get('state')) {
             $query->where('state', $state);
         }
